@@ -11,7 +11,14 @@ enum callstatus{
 
 const Agent = ({ userName, userId, type }: { userName: string; userId: string; type: string }) => {
     const isSpeaking=true;
-    const CallStatus=callstatus.FINISHED;
+    const CallStatus: callstatus =
+        type === 'sign-in'
+            ? callstatus.FINISHED
+            : Math.random() > 0.66
+                ? callstatus.ACTIVE
+                : Math.random() > 0.33
+                    ? callstatus.CONNECTING
+                    : callstatus.INACTIVE;
     const messages=[
         'whats up',
         'how are you doing?',
@@ -55,13 +62,13 @@ const Agent = ({ userName, userId, type }: { userName: string; userId: string; t
 
 
     <div className="w-full flex justify-center">
-        {CallStatus!='ACTIVE'?(
+        {CallStatus!==callstatus.ACTIVE?(
             <button className="btn-call relative" >
-                <span className={cn('absolute animate-ping rounded-full opacity-75',CallStatus!='CONNECTING'&'hidden')} />
+                <span className={cn('absolute animate-ping rounded-full opacity-75', CallStatus !== callstatus.CONNECTING && 'hidden')} />
              
 
                 <span>
-                    {CallStatus=='INACTIVE'||CallStatus=='FINISHED'?'Call':'...'}
+                    {CallStatus===callstatus.INACTIVE||CallStatus===callstatus.FINISHED?'Call':'...'}
 
                 </span>
 
