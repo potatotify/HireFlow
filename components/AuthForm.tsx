@@ -4,10 +4,11 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner"
-
+import { signIn } from "@/lib/actions/auth.action";
 import { Button } from "@/components/ui/button"
 import Link from "next/link";
-
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import {auth} from "@/firebase/client";
 import {
   Card,
   CardContent,
@@ -23,6 +24,10 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { signup } from "@/lib/actions/auth.action";
+
+
+
 const signUpSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
@@ -48,21 +53,45 @@ const AuthForm = ({type}: {type: formType}) => {
     resolver: zodResolver(schema),
     defaultValues: type === "sign-up" ? { name: "", email: "", password: "" } : { email: "", password: "" },
   })
-  function onSubmit(data: AuthFormValues) {
-    toast(type === "sign-in" ? "You signed in successfully!" : "You signed up successfully!", {
-      
-      position: "bottom-right",
-      description: type === "sign-in" ? "Welcome back!" : "Welcome to HireFlow!",
-      
-      classNames: {
-        
-        content: "flex flex-col gap-2 ",
-        
-      },
-      style: {
-        "--border-radius": "calc(var(--radius)  + 4px)",
-      } as React.CSSProperties,
-    })
+  async function onSubmit(data: AuthFormValues) {
+
+    try{
+    if(type==='sign-up'){
+      const {name,email,password}=data;
+      const userCredentials=await createUserWithEmailAndPassword(auth,email,password)
+      const result=await  signup({
+        uid:userCredentials.user.uid,
+        name:name!,
+        email,
+        password,
+      })
+      if(!result?.success){
+        toast.error(result?.message);
+        return;
+      }
+      toast.success(result?.message);
+
+
+    }
+    else{
+      const {email,password}=data;
+      const userCredentials=await signInWithEmailAndPassword(auth,email,password);
+      const idToken = await userCredentials.user.getIdToken();
+      if(!idToken){
+        toast.error("Failed to get ID token. Please try again.");
+        return;
+      }
+      await signIn({
+        email,
+        idToken,})
+      toast.success("You signed in successfully!");
+    }
+
+  
+  }catch(e:any){
+      console.error("There was an error while submitting the form: ",e)
+      toast.error(e.message || "An error occurred. Please try again.");
+    }
   }
 
   return (
@@ -135,9 +164,9 @@ const AuthForm = ({type}: {type: formType}) => {
           <p>
             {type==="sign-in" ? 
           (<>
-          Don't have an account <Link href="/sign-up" className="text-primary-200 hover:underline">
+          Don't have an account <Link href="/sign-up" className="text-primary-200 text-md hover:underline">
             Create one
-          </Link> </>):(<>Already have an account? <Link href="/sign-in" className="text-primary-200 hover:underline ">
+          </Link> </>):(<>Already have an account? <Link href="/sign-in" className="text-primary-200 text-md hover:underline ">
             Sign in
           </Link>
           </>

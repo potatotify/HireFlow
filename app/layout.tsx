@@ -13,7 +13,7 @@ const monaSans = Mona_Sans({
 
 export const metadata: Metadata = {
   title: "HireFlow",
-  description: "HireFlow is a platform that streamlines the hiring process, making it easier for companies to find and hire the best talent efficiently.",
+  description: "HireFlow connects candidates with real recruiter interviews while providing AI-powered mock interviews, personalized feedback, and a seamless hiring experience—all in one platform.",
 };
 
 export default function RootLayout({

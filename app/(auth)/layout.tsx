@@ -1,8 +1,14 @@
 import { ReactNode } from "react"
 import Image from "next/image"
 import { Toaster } from "@/components/ui/sonner"
+import { isAuthenticated } from "@/lib/actions/auth.action"
+import { redirect } from "next/navigation"
 
-const authLayout = ({ children }: { children: ReactNode }) => {
+const authLayout = async ({ children }: { children: ReactNode }) => {
+  const isUserAuthenticated = await isAuthenticated();
+  if (isUserAuthenticated) {
+    redirect('/');
+  }
   return (
     <div className="relative flex h-dvh w-full items-center justify-center overflow-hidden bg-[url('/pattern.png')] bg-cover bg-center bg-no-repeat px-4 py-4 sm:px-6 lg:px-8">
       <div className="absolute inset-0 bg-slate-950/45" />
@@ -29,11 +35,10 @@ const authLayout = ({ children }: { children: ReactNode }) => {
                 Hiring, simplified
               </p>
               <h1 className="max-w-xl text-4xl font-semibold leading-[1.1] tracking-tight text-white xl:text-[2.75rem]">
-                Interview platform for modern recruiting teams.
+                Where AI Meets Real Hiring
               </h1>
               <p className="max-w-xl text-sm leading-7 text-slate-300/90">
-                HireFlow keeps onboarding, interviews, and talent tracking in one calm,
-                focused space.
+                HireFlow brings AI-powered practice, real recruiter interviews, and personalized feedback together in one seamless platform
               </p>
             </div>
           </div>
