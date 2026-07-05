@@ -8,7 +8,7 @@ export async function GET(){
 }
 
 export async function POST(request:Request){
-    const {type,role,level,techstack,amount,userid, } =await request.json();
+    const {type,role,level,techstack,amount,userid} =await request.json();
 
     try{
         const { text: questions } = await generateText({
@@ -48,3 +48,12 @@ export async function POST(request:Request){
 
     }
 }
+
+
+// export async function POST(request: Request) {
+//   const body = await request.json();
+
+//   console.log(JSON.stringify(body, null, 2));
+
+//   return Response.json({ success: true });
+// }

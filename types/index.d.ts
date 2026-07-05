@@ -39,12 +39,16 @@ interface User {
 }
 
 interface InterviewCardProps {
-  interviewId?: string;
+  id?: string;
   userId?: string;
   role: string;
   type: string;
   techstack: string[];
   createdAt?: string;
+}
+interface SavedMessage {
+  role: 'user'|'system'|'assistant';
+  content: string;
 }
 
 interface AgentProps {
