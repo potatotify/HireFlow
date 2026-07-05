@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import { interviewer } from '@/constants'
+import { createFeedback } from '@/lib/actions/general.action'
 
 
 enum callstatus{
@@ -13,7 +14,7 @@ enum callstatus{
     FINISHED='FINISHED',
 }
 
-const Agent = ({ userName, userId, type ,interviewId,questions}: { userName: string; userId: string; type: string ,interviewId: string; questions: string[] }) => {
+const Agent = ({ userName, userId, type, interviewId, questions = [] }: AgentProps) => {
     const router = useRouter();
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [callStatus, setCallStatus] = useState<callstatus>(callstatus.INACTIVE);
@@ -88,13 +89,14 @@ const Agent = ({ userName, userId, type ,interviewId,questions}: { userName: str
     const handleGenerateFeedback=async(message:SavedMessage[])=>{
       console.log('generate feedback here');
       //generate server action that genereates feedback and returns the feedback id
-      const {success,id} ={
-        success:true,
-        id:'feedback-id'
-      }
+      const {success,feedbackId:id}= await createFeedback({
+        interviewId:interviewId!,
+        userId:userId!,
+        transcript:messages,
+      })
 
       if(success&&id){
-        router.push(`/interview/${interviewId}/${id}`);
+        router.push(`/interview/${interviewId}/feedback`);
       }else{
         console.log('failed to generate feedback');
         router.push('/');
