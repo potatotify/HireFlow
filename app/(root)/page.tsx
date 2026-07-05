@@ -16,6 +16,11 @@ const page = async () => {
     getLatestInterviews({userId:user?.id!}),
   ]);
 
+  
+console.log("current user:", user);
+console.log("user id:", user?.id);
+console.log("latest interviews", latestInterviews);
+  
 
 
 
@@ -73,7 +78,16 @@ const page = async () => {
             {
               hasUpcomingInterviews? (
                 latestInterviews?.map((interview)=>(
-                  <InterviewCard{...interview} key={interview.id}/>
+                  <InterviewCard 
+                  key={interview.id}
+                  userId={user?.id!}
+                  id={interview.id}
+                  role={interview.role}
+                  type={interview.type}
+                  techstack={interview.techstack}
+                  createdAt={interview.createdAt}
+                  
+                  />
                 ))
               ):(
                 <p>There are no more Interviews available at the moment.</p>     

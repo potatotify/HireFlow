@@ -7,6 +7,7 @@ import { toast } from "sonner"
 import { signIn } from "@/lib/actions/auth.action";
 import { Button } from "@/components/ui/button"
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import {auth} from "@/firebase/client";
 import {
@@ -48,6 +49,7 @@ type AuthFormValues = {
 }
 
 const AuthForm = ({type}: {type: formType}) => {
+  const router = useRouter();
   const schema = type === "sign-up" ? signUpSchema : signInSchema
   const form = useForm<AuthFormValues>({
     resolver: zodResolver(schema),
@@ -69,7 +71,8 @@ const AuthForm = ({type}: {type: formType}) => {
         toast.error(result?.message);
         return;
       }
-      toast.success(result?.message);
+      toast.success("Account created successfully! Please login using your credentials");
+      router.push("/sign-in");
 
 
     }
@@ -158,19 +161,31 @@ const AuthForm = ({type}: {type: formType}) => {
       <CardFooter className="pt-6">
         <Field orientation="horizontal" className="w-full gap-3">
           
-          <Button type="submit" form="form-rhf-demo" className=" w-full p-4 rounded-2xl text-lg bg-primary-200 font-medium text-dark-100 shadow-sm transition hover:bg-primary-200/90 sm:w-auto">
+          <Button type="submit" form="form-rhf-demo" className=" w-full p-2 rounded-2xl text-lg bg-primary-200 font-medium text-dark-100 shadow-sm transition hover:bg-primary-200/90 sm:w-auto">
             {type === "sign-in" ? "Sign in" : "Create account"}
           </Button>
-          <p>
-            {type==="sign-in" ? 
-          (<>
-          Don't have an account <Link href="/sign-up" className="text-primary-200 text-md hover:underline">
-            Create one
-          </Link> </>):(<>Already have an account? <Link href="/sign-in" className="text-primary-200 text-md hover:underline ">
-            Sign in
-          </Link>
-          </>
-          )}
+          <p className="text-sm text-slate-300">
+            {type === "sign-in" ? (
+              <>
+                Don&apos;t have an account?{" "}
+                <Link
+                  href="/sign-up"
+                  className="inline-flex items-center rounded-full   px-3 py-1 font-md text-primary-100 transition hover:border-primary-200/50 hover:bg-primary-200/20 hover:text-white"
+                >
+                  Create one
+                </Link>
+              </>
+            ) : (
+              <>
+                Already have an account?{" "}
+                <Link
+                  href="/sign-in"
+                  className="inline-flex items-center rounded-full   px-3 py-1  font-medium text-primary-100 transition hover:border-primary-200/50 hover:bg-primary-200/20 hover:text-white"
+                >
+                  Sign in
+                </Link>
+              </>
+            )}
           </p>
                   </Field>
       </CardFooter>
