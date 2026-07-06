@@ -14,7 +14,7 @@ enum callstatus{
     FINISHED='FINISHED',
 }
 
-const Agent = ({ userName, userId, type, interviewId, questions = [] }: AgentProps) => {
+const Agent = ({ userName, userId, type, interviewId, questions, visibility  }: AgentProps) => {
     const router = useRouter();
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [callStatus, setCallStatus] = useState<callstatus>(callstatus.INACTIVE);
@@ -128,10 +128,16 @@ const Agent = ({ userName, userId, type, interviewId, questions = [] }: AgentPro
         if (type === "generate") {
           await vapiRef.current.start(process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID!, {
             variableValues: {
+              visibility: visibility,
               username: userName,
               userid: userId,
+              
             },
-          });
+          }
+          
+        )
+        console.log("visbility is sent as", visibility);
+        ;
         } else {
           const formattedQuestions = questions?.map((question) => `- ${question}`).join('\n') ?? '';
 

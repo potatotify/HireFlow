@@ -1,6 +1,7 @@
 interface Feedback {
   id: string;
   interviewId: string;
+  userId: string;
   totalScore: number;
   categoryScores: Array<{
     name: string;
@@ -23,6 +24,7 @@ interface Interview {
   userId: string;
   type: string;
   finalized: boolean;
+  visibility?: "public" | "private";
 }
 
 interface CreateFeedbackParams {
@@ -58,6 +60,7 @@ interface AgentProps {
   feedbackId?: string;
   type: "generate" | "interview";
   questions?: string[];
+  visibility?: string;
 }
 
 interface RouteParams {
@@ -96,6 +99,7 @@ interface InterviewFormProps {
   type: string;
   techstack: string[];
   amount: number;
+  visibility: "public" | "private";
 }
 
 interface TechIconProps {

@@ -22,9 +22,15 @@ const checkIconExists = async (url: string) => {
   }
 };
 
-export const getTechLogos = async (techArray: string[]) => {
+export const getTechLogos = async (techArray?: string[] | null) => {
+  if (!Array.isArray(techArray) || techArray.length === 0) return [] as { tech: string; url: string }[];
+
   const logoURLs = techArray.map((tech) => {
     const normalized = normalizeTechName(tech);
+    if (!normalized) {
+      return { tech, url: "/tech.svg" };
+    }
+
     return {
       tech,
       url: `${techIconBaseURL}/${normalized}/${normalized}-original.svg`,
@@ -34,7 +40,7 @@ export const getTechLogos = async (techArray: string[]) => {
   const results = await Promise.all(
     logoURLs.map(async ({ tech, url }) => ({
       tech,
-      url: (await checkIconExists(url)) ? url : "/tech.svg",
+      url: url.startsWith("/") ? url : (await checkIconExists(url) ? url : "/tech.svg"),
     }))
   );
 
@@ -43,5 +49,17 @@ export const getTechLogos = async (techArray: string[]) => {
 
 export const getRandomInterviewCover = () => {
   const randomIndex = Math.floor(Math.random() * interviewCovers.length);
+  return `/covers${interviewCovers[randomIndex]}`;
+};
+
+export const getInterviewCoverById = (id: string) => {
+  // Use the ID to generate a deterministic "random" index
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    const char = id.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  const randomIndex = Math.abs(hash) % interviewCovers.length;
   return `/covers${interviewCovers[randomIndex]}`;
 };

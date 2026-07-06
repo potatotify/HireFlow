@@ -3,6 +3,7 @@ import { db } from "@/firebase/admin";
 import {generateObject} from 'ai';
 import { google } from '@ai-sdk/google';
 import {feedbackSchema} from '@/constants/index';
+import {redirect} from "next/navigation";
 
 export async function getInterviewsByUserId(userId:string):Promise<Interview[] | null>{
         const interviews =await db
@@ -118,4 +119,65 @@ export async function getFeedbackByInterviewId(
 
   const feedbackDoc = querySnapshot.docs[0];
   return { id: feedbackDoc.id, ...feedbackDoc.data() } as Feedback;
+}
+
+export async function getFeedbackCountByInterviewId(interviewId: string): Promise<number> {
+  const snapshot = await db
+    .collection('feedback')
+    .where('interviewId', '==', interviewId)
+    .get()
+
+  return snapshot.size || 0
+}
+
+export async function getFeedbackCandidatesForInterview(interviewId: string): Promise<any[]> {
+  const feedbackSnapshot = await db
+    .collection('feedback')
+    .where('interviewId', '==', interviewId)
+    .get();
+
+  if (feedbackSnapshot.empty) return [];
+
+  const candidates = await Promise.all(
+    feedbackSnapshot.docs.map(async (feedbackDoc) => {
+      const feedbackData = feedbackDoc.data() as Feedback;
+      const userId = feedbackData.userId;
+
+      try {
+        const userDoc = await db.collection('users').doc(userId).get();
+        const userData = userDoc.data() as User;
+
+        return {
+          id: feedbackDoc.id,
+          userId: userId,
+          userName: userData?.name || 'Unknown',
+          userEmail: userData?.email || 'Unknown',
+          totalScore: feedbackData.totalScore,
+          createdAt: feedbackData.createdAt,
+        };
+      } catch (err) {
+        console.error(`Error fetching user ${userId}:`, err);
+        return {
+          id: feedbackDoc.id,
+          userId: userId,
+          userName: 'Unknown',
+          userEmail: 'Unknown',
+          totalScore: feedbackData.totalScore,
+          createdAt: feedbackData.createdAt,
+        };
+      }
+    })
+  );
+
+  return candidates;
+}
+
+export async function joinInterview(formData: FormData) {
+  
+
+  const code = formData.get("code")?.toString().trim();
+
+  if (!code) return;
+
+  redirect(`/interview/${code}/`);
 }

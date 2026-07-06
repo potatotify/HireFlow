@@ -8,9 +8,10 @@ export async function GET(){
 }
 
 export async function POST(request:Request){
-    const {type,role,level,techstack,amount,userid} =await request.json();
+    const {type,role,level,techstack,amount,userid,visibility} =await request.json();
 
     try{
+        console.log("visbility sent by vapi is",visibility);
         const { text: questions } = await generateText({
       model: google("gemini-2.5-flash"),
       prompt: `Prepare questions for a job interview.
@@ -33,11 +34,12 @@ export async function POST(request:Request){
             techstack:techstack.split(','),
             questions:JSON.parse(questions),
             userId:userid,
+            visibility:visibility,
             coverImage:getRandomInterviewCover(),
             createdAt:new Date().toISOString(),
         }
         await db.collection("interviews").add(interview);
-
+        
         return Response.json({success:true,data:interview},{status:200})
         
   
